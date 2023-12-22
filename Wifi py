@@ -1,0 +1,45 @@
+
+import paho.mqtt.client as mqtt
+
+# Simulation of current traffic light status
+current_light = "red"
+
+# MQTT connection settings
+broker_address = "mqtt.eclipse.org"
+client = mqtt.Client("TrafficLightControl")
+
+# Callback function upon successful connection
+def on_connect(client, userdata, flags, rc):
+    print("Connected with result code "+str(rc))
+    client.subscribe("traffic_light/control/#")
+
+# Callback function upon receiving a message
+def on_message(client, userdata, msg):
+    global current_light
+    topic = msg.topic
+    message = msg.payload.decode()
+
+    # Parse message and execute corresponding action
+    if topic == "traffic_light/control/mode":
+        if message == "green":
+            current_light = "green"
+            print("Switched to Green Light")
+        elif message == "yellow":
+            current_light = "yellow"
+            print("Switched to Yellow Light")
+        elif message == "red":
+            current_light = "red"
+            print("Switched to Red Light")
+   
+    # Add parsing and execution for other control operations here
+
+# Set callback functions
+client.on_connect = on_connect
+client.on_message = on_message
+
+# Connect to the MQTT broker
+client.connect(broker_address, 1883, 60)
+
+# Start loop
+client.loop_forever()
+￼Enter
